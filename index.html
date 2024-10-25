@@ -60,30 +60,36 @@
     function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const name = document.getElementById('fullname').value;
-      const activityNumber = document.getElementById('result').textContent;
+      const activityNumber = document.getElementById('result').textContent.match(/\d+/)[0];
 
-     // Create a new jsPDF document in landscape mode
-  const doc = new jsPDF({
-    orientation: 'landscape'
-  });
-      doc.text(`Name: ${name}`, 10, 10);
-      doc.text(`CC102 - Computer Programming 1`, 10, 20);
-      doc.text(`Midterm Performance Task`, 10, 30);
-      doc.text(`Deadline: October 30, 2024`, 10, 40);
-      doc.text(`Instructions:`, 10, 50);
-      doc.text(`1. You are required to design, implement, and submit the following for each problem:`, 10, 60);
-      doc.text(`- Flowchart (illustrated clearly using correct symbols)`, 10, 70);
-      doc.text(`- Pseudocode (written step-by-step solution for the problem)`, 10, 80);
-      doc.text(`- Java Code (based on the pseudocode)`, 10, 90);
-      doc.text(`2. The flowchart, pseudocode, and Java code must all be handwritten on a long bond paper (8.5 x 13 in).`, 10, 100);
-      doc.text(`3. Ensure your work is neat and legible. Use proper indentation and syntax in your pseudocode and Java code.`, 10, 110);
-      doc.text(`4. Submit your completed work by October 30, 2024. Late submissions will not be accepted.`, 10, 120);
-      doc.text(`5. Please include your full name [Lastname, Firstname MI.], and section at the top of each page.`, 10, 130);
+      const doc = new jsPDF();
+      const lineHeight = 10;
+      let y = 10; // Start Y position
 
-      doc.text(`\nProblem:`, 20, 150);
-      
-      
-      // Define problems based on activity number
+      // Add text with automatic line splitting
+      const textArray = [
+        `Name: ${name}`,
+        `CC102 - Computer Programming 1`,
+        `Midterm Performance Task`,
+        `Deadline: October 30, 2024`,
+        `Instructions:`,
+        `1. You are required to design, implement, and submit the following for each problem:`,
+        `- Flowchart (illustrated clearly using correct symbols)`,
+        `- Pseudocode (written step-by-step solution for the problem)`,
+        `- Java Code (based on the pseudocode)`,
+        `2. The flowchart, pseudocode, and Java code must all be handwritten on a long bond paper (8.5 x 13 in).`,
+        `3. Ensure your work is neat and legible. Use proper indentation and syntax in your pseudocode and Java code.`,
+        `4. Submit your completed work by October 30, 2024. Late submissions will not be accepted.`,
+        `5. Please include your full name [Lastname, Firstname MI.], and section at the top of each page.`
+      ];
+
+      textArray.forEach(line => {
+        let splitLine = doc.splitTextToSize(line, 180); // Adjust 180 for text width to fit page
+        doc.text(splitLine, 10, y);
+        y += splitLine.length * lineHeight; // Adjust Y position based on line count
+      });
+
+      // Problems list
       const problems = [
         "1. Sum of Two Integers: Write a program that prompts the user to enter two integers and then outputs their sum.",
         "2. Product of Two Numbers: Write a program that prompts the user to enter two floating-point numbers and outputs their product.",
@@ -99,13 +105,14 @@
         "12. Swap Two Numbers: Write a program that swaps two numbers entered by the user without using a third variable."
       ];
 
-      // Get the activity number to show the corresponding problem
-      const activityNum = parseInt(document.getElementById('result').textContent.match(/\d+/)[0]); // Extract activity number
-      if (activityNum >= 1 && activityNum <= 12) {
-        doc.text(problems[activityNum - 1], 10, 160);
-      }
+      // Add the problem based on activity number
+      y += 10; // Add some space before the problem
+      doc.text('Problem:', 10, y);
+      y += lineHeight;
+      let problemText = doc.splitTextToSize(problems[activityNumber - 1], 180); // Split the problem text
+      doc.text(problemText, 10, y);
 
-      doc.save('CC2-PERFORMACE TASK-MIDTERM.pdf');
+      doc.save('activity.pdf');
     }
 
     function sendEmail(name, activityNumber) {
