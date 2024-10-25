@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activity Spinner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  <div class="flex flex-col items-center">
+    <img alt="Colorful spinning wheel with numbers 1 to 12" class="mb-4" height="200" 
+         src="https://storage.googleapis.com/a1aa/image/OKBb1kl0GexkXSBu2Mf9Hol0Zkqn0dVic9posJe8jxz56VUnA.jpg" width="200"/>
+    
+    <div class="flex items-center mb-4">
+      <label class="text-gray-700 font-semibold mr-2" for="fullname">
+        Full name:
+      </label>
+      <input class="border border-blue-500 rounded px-2 py-1" id="fullname" placeholder="Enter your Lastname, Firstname M." type="text"/>
+    </div>
+    
+    <button class="bg-blue-600 text-white font-semibold py-2 px-4 rounded mb-4" onclick="spinWheel()">
+      SPIN
+    </button>
+
+    <p id="result" class="text-gray-600 mb-4">
+      Hello, Student. Your activity number is 5.
+    </p>
+    
+    <button id="download-pdf" class="bg-red-600 text-white font-semibold py-2 px-4 rounded" style="display:none;" onclick="downloadPDF()">
+      DOWNLOAD PDF
+    </button>
+  </div>
+
+  <script>
+    let spun = false; // Track if the student has already spun
+
+    function spinWheel() {
+      const name = document.getElementById('fullname').value.trim(); // Trim whitespace
+      if (!name) {
+        alert('Please enter your full name!');
+        return;
+      }
+
+      if (spun) {
+        alert('You have already spun the wheel!');
+        return;
+      }
+
+      const activityNumber = Math.floor(Math.random() * 12) + 1; // Random number between 1 and 12
+      document.getElementById('result').textContent = `Hello, ${name}. Your activity number is ${activityNumber}.`;
+      document.getElementById('download-pdf').style.display = 'block'; // Show the download button
+
+      sendEmail(name, activityNumber);
+      spun = true; // Mark as spun
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const name = document.getElementById('fullname').value;
+      const activityNumber = document.getElementById('result').textContent;
+
+      const doc = new jsPDF();
+      doc.text(`Name: ${name}`, 10, 10);
+      doc.text(`CC102 - Computer Programming 1`, 10, 20);
+      doc.text(`Midterm Performance Task`, 10, 30);
+      doc.text(`Deadline: October 30, 2024`, 10, 40);
+      doc.text(`Instructions:`, 10, 50);
+      doc.text(`1. You are required to design, implement, and submit the following for each problem:`, 10, 60);
+      doc.text(`- Flowchart (illustrated clearly using correct symbols)`, 10, 70);
+      doc.text(`- Pseudocode (written step-by-step solution for the problem)`, 10, 80);
+      doc.text(`- Java Code (based on the pseudocode)`, 10, 90);
+      doc.text(`2. The flowchart, pseudocode, and Java code must all be handwritten on a long bond paper (8.5 x 13 in).`, 10, 100);
+      doc.text(`3. Ensure your work is neat and legible. Use proper indentation and syntax in your pseudocode and Java code.`, 10, 110);
+      doc.text(`4. Submit your completed work by October 30, 2024. Late submissions will not be accepted.`, 10, 120);
+      doc.text(`5. Please include your full name [Lastname, Firstname MI.], and section at the top of each page.`, 10, 130);
+
+      doc.text(`\nProblem:`, 20, 150);
+      
+      
+      // Define problems based on activity number
+      const problems = [
+        "1. Sum of Two Integers: Write a program that prompts the user to enter two integers and then outputs their sum.",
+        "2. Product of Two Numbers: Write a program that prompts the user to enter two floating-point numbers and outputs their product.",
+        "3. Area of a Circle: Write a program that calculates and displays the area of a circle after the user inputs the radius. Use the formula: Area = π * radius^2.",
+        "4. Average of Three Numbers: Write a program that asks the user to input three integers and calculates their average.",
+        "5. Even or Odd: Write a program that prompts the user to enter an integer and determines whether the number is even or odd.",
+        "6. Maximum of Two Numbers: Write a program that prompts the user to enter two numbers and prints which one is greater.",
+        "7. Simple Interest Calculation: Write a program that calculates the simple interest based on the principal amount, rate of interest, and time in years entered by the user. Use the formula: Simple Interest = (Principal * Rate * Time) / 100.",
+        "8. Celsius to Fahrenheit Conversion: Write a program that converts a temperature from Celsius to Fahrenheit. Use the formula: Fahrenheit = (Celsius * 9/5) + 32.",
+        "9. Positive, Negative, or Zero: Write a program that prompts the user to enter a number and then outputs whether the number is positive, negative, or zero.",
+        "10. Remainder of Division: Write a program that asks the user to input two integers and outputs the remainder when the first is divided by the second.",
+        "11. Total Price Including Tax: Write a program that calculates the total price of an item including tax. The program should prompt the user to input the price of the item and the tax rate.",
+        "12. Swap Two Numbers: Write a program that swaps two numbers entered by the user without using a third variable."
+      ];
+
+      // Get the activity number to show the corresponding problem
+      const activityNum = parseInt(document.getElementById('result').textContent.match(/\d+/)[0]); // Extract activity number
+      if (activityNum >= 1 && activityNum <= 12) {
+        doc.text(problems[activityNum - 1], 10, 160);
+      }
+
+      doc.save('CC2-PERFORMACE TASK-MIDTERM.pdf');
+    }
+
+    function sendEmail(name, activityNumber) {
+      emailjs.init('P0ann7PdgzzWdg8QL'); // Use your public key
+
+      const templateParams = {
+        name: name,
+        activity_number: activityNumber
+      };
+
+      // Show loading indicator
+      const downloadButton = document.getElementById('download-pdf');
+      downloadButton.innerText = "Sending...";
+      downloadButton.disabled = true; // Disable the button during email sending
+
+      emailjs.send('service_tsg1cyc', 'template_01azxk4', templateParams)
+        .then(response => {
+          console.log('SUCCESS!', response.status, response.text);
+          downloadButton.innerText = "DOWNLOAD PDF"; // Reset button text
+          downloadButton.disabled = false; // Re-enable the button
+        })
+        .catch(error => {
+          console.log('FAILED...', error);
+          alert('Failed to send email. Please try again later.'); // Notify user
+          downloadButton.innerText = "DOWNLOAD PDF"; // Reset button text
+          downloadButton.disabled = false; // Re-enable the button
+        });
+    }
+  </script>
+</body>
+</html>
